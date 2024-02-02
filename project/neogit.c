@@ -58,7 +58,7 @@ int run_init(int argc, char * const argv[])
 
 int create_local_configs_user(char *username)
 {
-    if()
+    
     FILE *local_user = fopen(".neogit/configs/username", "w");
 
     if (local_user == NULL) return 1;
