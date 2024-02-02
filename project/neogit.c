@@ -58,6 +58,7 @@ int run_init(int argc, char * const argv[])
 
 int create_local_configs_user(char *username)
 {
+    if()
     FILE *local_user = fopen(".neogit/configs/username", "w");
 
     if (local_user == NULL) return 1;
@@ -80,9 +81,9 @@ int create_local_configs_email(char *email)
 
     return 0;   
 }
-int creat_global_configs_user(char *username)
+int create_global_configs_user(char *username)
 {
-    FILE *global_user = fopen("home/global-user", "w");
+    FILE *global_user = fopen("/home/ava/global_configs/global-user", "w");
 
     if (global_user == NULL) return 1;
   
@@ -92,15 +93,14 @@ int creat_global_configs_user(char *username)
 }
 int create_global_configs_email(char *email)
 {
-    FILE *global_email = fopen("home/global-email", "w");
-
+    FILE *global_email = fopen("/home/ava/global_configs/global-email", "w");
+    
     if (global_email == NULL) return 1;
-
+    
     fprintf(global_email, "email: %s\n", email);
     
     fclose(global_email);
 }
-
 
 int main(int argc, char *argv[]) 
 {
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     
     if (strcmp(argv[1], "init") == 0) 
     {
-        return run_init(argc, argv);}
+        return run_init(argc, argv);
     // } else if (strcmp(argv[1], "add") == 0) {
     //     return run_add(argc, argv);
     // } else if (strcmp(argv[1], "reset") == 0) {
@@ -122,15 +122,15 @@ int main(int argc, char *argv[])
     //     return run_commit(argc, argv);
     // } else if (strcmp(argv[1], "checkout") == 0) {
     //     return run_checkout(argc, argv);
-    // } else if (strcmp(argv[2], "user.name") == 0) {
-    //     return create_local_configs_user(argv[3]);
-    // } else if (strcmp(argv[2], "user.email") == 0) {
-    //     return create_local_configs_email(argv[3]);
-    // } else if (strcmp(argv[3], "user.name") == 0 && strcmp(argv[2], "--global") == 0) {
-    //     return create_global_configs_user(argv[4]);
-    // } else if (strcmp(argv[3], "user.email") == 0 && strcmp(argv[2], "--global") == 0) {
-    //     return create_global_configs_email(argv[4]);
-    // }
+    } else if (strcmp(argv[2], "user.name") == 0) {
+        return create_local_configs_user(argv[3]);
+    } else if (strcmp(argv[2], "user.email") == 0) {
+        return create_local_configs_email(argv[3]);
+    } else if (strcmp(argv[3], "user.name") == 0 && strcmp(argv[2], "--global") == 0) {
+        return create_global_configs_user(argv[4]);
+    } else if (strcmp(argv[3], "user.email") == 0 && strcmp(argv[2], "--global") == 0) {
+        return create_global_configs_email(argv[4]);
+    }
     return 0;
 }
 
