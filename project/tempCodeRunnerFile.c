@@ -1,5 +1,1 @@
-int creat_global_configs(char *username, char *email)
-// {
-    
-
-// }
+strcat(path, literal_filename);
