@@ -392,131 +392,124 @@ int reset(char *filename)
         }
     }
 }
-int commit(int argc, int argv[])
+int commit(int argc, char *argv[])
 {
-    bool exists = false;
-    struct dirent *entry;
-    DIR *dir = opendir(".");
-    if (dir == NULL)
+    // bool exists = false;
+    // struct dirent *entry;
+    // DIR *dir = opendir(".");
+    // if (dir == NULL)
+    // {
+    //     fprintf(stderr, "%s\n", "Error opening current directory");
+    //     return 1;
+    // }
+    // while ((entry = readdir(dir)) != NULL)
+    // {
+    //     if (strcmp(entry->d_name, ".neogit") == 0)
+    //         exists = true;
+    // }
+    // closedir(dir);
+    // if (exists)
+    // {
+    //     FILE *local_username = fopen(".neogit/configs/username", "r");
+    //     FILE *local_email = fopen(".neogit/configs/email", "r");
+    //     if (local_email == NULL && local_username == NULL)
+    //     {
+    //         fclose(local_email);
+    //         fclose(local_username);
+    //         FILE *global_user = fopen("/home/ava/global_configs/global-user", "r");
+    //         FILE *global_email = fopen("/home/ava/global_configs/global-email", "r");
+    //         if (global_email == NULL && global_user == NULL)
+    //         {
+    //             fprintf(stderr, "please enter your username and email first!\n");
+    //             return 1;
+    //         }
+    //         else
+    //         {
+    //             FILE *local_username = fopen(".neogit/configs/username", "w");
+    //             FILE *local_email = fopen(".neogit/configs/email", "w");
+    //             char read_e[1000];
+    //             char read_u[1000];
+    //             while (fgets(read_e, sizeof(read_e), global_email) != NULL)
+    //             {
+    //                 fputs(read_e, local_email);
+    //             }
+    //             while (fgets(read_u, sizeof(read_e), global_user) != NULL)
+    //             {
+    //                 fputs(read_u, local_username);
+    //             }
+    //             fclose(local_username);
+    //             fclose(local_email);
+    //         }
+    //     }
+    // else
+    // {
+    if (argc > 4)
     {
-        fprintf(stderr, "%s\n", "Error opening current directory");
+        fprintf(stderr, "please put your comment between a double quotation\n");
         return 1;
     }
-    while ((entry = readdir(dir)) != NULL)
-    {
-        if (strcmp(entry->d_name, ".neogit") == 0)
-            exists = true;
-    }
-    closedir(dir);
-    if (exists)
-    {
-        FILE *local_username = fopen(".neogit/configs/username", "r");
-        FILE *local_email = fopen(".neogit/configs/email", "r");
-        if (local_email == NULL && local_username == NULL)
+        FILE *counter = fopen(".neogit/counter", "r");
+        char *number;
+        int value;
+        char temp[1];
+        if (counter == NULL)
         {
-            fclose(local_email);
-            fclose(local_username);
-            FILE *global_user = fopen("/home/ava/global_configs/global-user", "r");
-            FILE *global_email = fopen("/home/ava/global_configs/global-email", "r");
-            if (global_email == NULL && global_user == NULL)
-            {
-                fprintf(stderr, "please enter your username and email first!\n");
-                return 1;
-            }
-            else
-            {
-                FILE *local_username = fopen(".neogit/configs/username", "w");
-                FILE *local_email = fopen(".neogit/configs/email", "w");
-                char read_e[1000];
-                char read_u[1000];
-                while (fgets(read_e, sizeof(read_e), global_email) != NULL)
-                {
-                    fputs(read_e, local_email);
-                }
-                while (fgets(read_u, sizeof(read_e), global_user) != NULL)
-                {
-                    fputs(read_u, local_username);
-                }
-                fclose(local_username);
-                fclose(local_email);
-            }
+            fclose(counter);
+            number = "1";
+            int value = atoi(number);
+            counter = fopen(".neogit/counter", "w");
+            fprintf(counter, "%d", value);
+            fclose(counter);
         }
         else
         {
-            if (argc > 4)
-            {
-                fprintf(stderr, "please put your comment between a double quotation\n");
-                return 1;
-            }
-            if (strlen(argv[3]) > 72)
-            {
-                fprintf(stderr, "your comment should not be more than 72 characters\n");
-                return 1;
-            }
-            if (argc < 4)
-            {
-                fprintf(stderr, "please enter a comment for your commit\n");
-                return 1;
-            }
-            FILE *counter;
-            counter = fopen(".neogit/counter", "r");
-            int number;
-            char temp[1];
-            if (counter == NULL)
-            {
-                fclose(counter);
-                counter = fopen(".neogit/counter", "w");
-                number = 1;
-                fprintf(counter, "%d", number);
-                fclose(counter);
-            }
-            else
-            {
-                fgets(temp, 1, counter);
-                temp[0] += 1;
-            }
-            DIR *dir = opendir(".neogit/staging_area");
-            if (dir == NULL)
-            {
-                fprintf(stderr, "%s\n", "Error opening current directory");
-                return 1;
-            }
-            while ((entry = readdir(dir)) != NULL)
-            {
-                if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-                {
-                    continue;
-                }
-                if (entry->d_type == DT_REG)
-                {
-                    char *stage_path = ".neogit/staging_area";
-                    char *commit_path = ".neogit/commit";
-                    char commit_num[1024];
-                    snprintf(commit_num, sizeof(commit_num), "%s%s", ".neogit/commit/commit", temp[0]);
-                    mkdir(commit_num , "0755");
-                    char source_path[1024];
-                    char destination_path[1024];
-                    snprintf(source_path, sizeof(source_path), "%s/%s", stage_path, entry->d_name);
-                    snprintf(destination_path, sizeof(destination_path), "%s/%s", commit_num, entry->d_name);
-                    if (rename(source_path, destination_path) != 0)
-                    {
-                        fprintf(stderr, "%s\n", "Error moving file");
-                        closedir(dir);
-
-                        return 1;
-                    }
-                    else if (rename(source_path, destination_path) == 0)
-                    {
-                        return 0;
-                    }
-                }
-            }
-            closedir(dir);
-            counter = fopen(".neogit/counter", "w");
-            fprintf(counter, "%d", temp[0]);
+            fgets(temp, 1, counter);
             fclose(counter);
+            value += 1;
         }
-    }
+        DIR *dir = opendir(".neogit/staging_area");
+        struct dirent *entry;
+        if (dir == NULL)
+        {
+            fprintf(stderr, "%s\n", "Error opening current directory");
+            return 1;
+        }
+        while ((entry = readdir(dir)) != NULL)
+        {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            {
+                continue;
+            }
+            // if (entry->d_type == DT_REG)
+            // {
+                char *stage_path = ".neogit/staging_area";
+                char *commit_path = ".neogit/commit";
+                char commit_num[1024];
+                snprintf(commit_num, sizeof(commit_num), "%s%s", ".neogit/commit/commit", temp);
+                mkdir(commit_num , "0755");
+                char source_path[1024];
+                char destination_path[1024];
+                snprintf(source_path, sizeof(source_path), "%s/%s", stage_path, entry->d_name);
+                snprintf(destination_path, sizeof(destination_path), "%s/%s", commit_num, entry->d_name);
+                if (rename(source_path, destination_path) != 0)
+                {
+                    fprintf(stderr, "%s\n", "Error moving file");
+                    closedir(dir);
+
+                    return 1;
+                }
+                else if (rename(source_path, destination_path) == 0)
+                {
+                    return 0;
+                }
+            // }
+        }
+        closedir(dir);
+        counter = fopen(".neogit/counter", "w");
+        fprintf(counter, "%d", value);
+        fclose(counter);
+    // }
+    // }
 }
 
 int main(int argc, char *argv[])
@@ -548,20 +541,25 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[1], "reset") == 0)
     {
-        if (strcmp(argv[2], "-undo"))
-        {
-            return reset(argv);
-        }
-        else
-        {
-            return reset(argv[2]);
-        }
+        // if (strcmp(argv[2], "-undo"))
+        // {
+        //     return reset(argv);
+        // }
+        // else
+        // {
+        return reset(argv[2]);
+        // }
     }
     else if (strcmp(argv[1], "commit") == 0)
     {
-        return commit(argc, argv);
-        // } else if (strcmp(argv[1], "checkout") == 0) {
-        //     return run_checkout(argc, argv);
+        if (argc < 4)
+        {
+            fprintf(stderr, "please enter a comment for your commit\n");
+        }
+        else
+        {
+            return commit(argc, argv[3]);
+        }
     }
     else if (strcmp(argv[2], "user.name") == 0)
     {
